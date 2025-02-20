@@ -9,10 +9,11 @@ import Footer from "./components/footer";
 export default async function HomePage() {
   const auth = getAuth();
   const user = await auth.user();
+  const subscription = await auth.subscription();
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar user={user} />
+      <Navbar user={user} subscription={subscription} />
 
       {!user ? (
         <main className="flex-grow bg-white text-slate-800">

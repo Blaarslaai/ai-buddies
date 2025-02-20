@@ -8,9 +8,10 @@ import Image from "next/image";
 
 type props = {
   user: any;
+  subscription: any;
 };
 
-export default async function Navbar({ user }: props) {
+export default async function Navbar({ user, subscription }: props) {
   return (
     <div className="navbar bg-black py-4">
       <div className="flex-1">
@@ -20,7 +21,7 @@ export default async function Navbar({ user }: props) {
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
-          {user && (
+          {user && subscription && subscription.status !== "active" && (
             <Link href="model">
               <div
                 tabIndex={0}
@@ -40,7 +41,7 @@ export default async function Navbar({ user }: props) {
           >
             <div className="w-10 rounded-full">
               {!user ? (
-                <FontAwesomeIcon icon={faUser} size="2x" fixedWidth />
+                <FontAwesomeIcon icon={faUser} size="2x" />
               ) : (
                 <Image src={user.photo} alt="" width={500} height={500} />
               )}

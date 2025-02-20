@@ -21,6 +21,20 @@ module.exports = {
         pathname: "/images/stock/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "api.reflowhq.com",
+        port: "",
+        pathname: "/img/gravatar/**",
+        search: "",
+      },
+      {
+        protocol: "https",
+        hostname: "test-api.reflowhq.com",
+        port: "",
+        pathname: "/img/gravatar/**",
+        search: "",
+      },
     ],
   },
 };

@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import React from "react";
+import { createSubscription } from "@reflowhq/auth-next/client";
 
 type props = {
   plan: any;
@@ -17,33 +20,48 @@ export default function Plan({ plan, activeTab, auth }: props) {
   }
 
   function subscribeToPlan() {
-    if (chosenPrice.price > 0) {
-      alert(
-        "Subscribing for paid plans is disabled in the demo in order to prevent accidental charges. You can try the free one instead."
-      );
-    } else {
-      auth.createSubscription({
-        priceID: chosenPrice.id,
-        paymentProvider: "paddle",
-      });
-    }
+    createSubscription({
+      priceID: chosenPrice.id,
+      paymentProvider: "paddle",
+      onSubscribe: () => {
+        refreshCookie();
+
+        window.location.reload();
+      },
+    });
+  }
+
+  async function refreshCookie() {
+    await auth.refresh();
   }
 
   return (
-    <div className="card">
-      <h1>{plan.name}</h1>
-      <p>{plan.description}</p>
-      <ul>
-        {plan.features.map((f: any, i: any) => (
-          <li key={i}>{f}</li>
-        ))}
-      </ul>
-      <h2>
-        {chosenPrice.price === 0
-          ? "Free"
-          : chosenPrice.price_formatted + " / " + chosenPrice.billing_period}
-      </h2>
-      <button onClick={subscribeToPlan}>Subscribe</button>
+    <div className="card flex flex-col h-full">
+      <div className="flex flex-col justify-center items-center flex-1">
+        <h1 className="text-5xl">{plan.name}</h1>
+        <p className="text-sm text-center">
+          <strong>{plan.description}</strong>
+        </p>
+        <ul className="list-disc my-5">
+          {plan.features.map((f: any, i: any) => (
+            <li key={i}>{f}</li>
+          ))}
+        </ul>
+        <h2
+          className={`font-bold ${
+            activeTab === "month" ? "text-primary" : "text-secondary"
+          }`}
+        >
+          {chosenPrice.price === 0
+            ? "Free"
+            : chosenPrice.price_formatted + " / " + chosenPrice.billing_period}
+        </h2>
+      </div>
+      <div className="flex justify-center my-5">
+        <button className="btn btn-accent w-1/2" onClick={subscribeToPlan}>
+          Subscribe
+        </button>
+      </div>
     </div>
   );
 }

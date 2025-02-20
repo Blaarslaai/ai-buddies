@@ -260,7 +260,7 @@ export default function ChatSpace({ user }: props) {
             ))}
           </div>
 
-          <div className="flex justify-center items-center mb-5 text-slate-400">
+          <div className="flex justify-center items-center mb-10 text-slate-400">
             <ul className="menu bg-base-200 lg:menu-horizontal rounded-box">
               <li>
                 <button

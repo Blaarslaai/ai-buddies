@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use server";
+
+import getAuth from "../auth";
 import { supabase } from "./supabase";
 
 export async function createAIModel(model: {
@@ -138,15 +141,6 @@ export async function getUserProfile(userId: string) {
 }
 
 export async function updateUserProfile(userProfile: any) {
-  const { error: userError } = await supabase
-    .from("users")
-    .update({ name: userProfile.name })
-    .eq("id", userProfile.user_id);
-
-  if (userError) {
-    console.error("Error updating user:", userError);
-  }
-
   const { data: existingProfile } = await supabase
     .from("userProfile")
     .select()
@@ -158,6 +152,30 @@ export async function updateUserProfile(userProfile: any) {
       .update({
         birthday: userProfile.birthday,
         gender: userProfile.gender,
+        occupation: userProfile.occupation,
+        origin: userProfile.origin,
+        hobbies: userProfile.hobbies,
+        weekends: userProfile.weekends,
+        locationPreference: userProfile.locationPreference,
+        careerLikes: userProfile.careerLikes,
+        careerGoals: userProfile.careerGoals,
+        partnerPreferences: userProfile.partnerPreferences,
+        relationshipCategory: userProfile.relationshipCategory,
+        loveLanguage: userProfile.loveLanguage,
+        funFacts: userProfile.funFacts,
+        threeWordDescription: userProfile.threeWordDescription,
+        funActivity: userProfile.funActivity,
+        family: userProfile.family,
+        familyImportance: userProfile.familyImportance,
+        traveled: userProfile.traveled,
+        dreamDestination: userProfile.dreamDestination,
+        favoriteFood: userProfile.favoriteFood,
+        coffeeOrTea: userProfile.coffeeOrTea,
+        favoriteMovie: userProfile.favoriteMovie,
+        favoriteShow: userProfile.favoriteShow,
+        entertainmentPreference: userProfile.entertainmentPreference,
+        philosophies: userProfile.philosophies,
+        stress: userProfile.stress,
       })
       .eq("user_id", userProfile.user_id);
 
@@ -170,7 +188,41 @@ export async function updateUserProfile(userProfile: any) {
         user_id: userProfile.user_id,
         birthday: userProfile.birthday,
         gender: userProfile.gender,
+        occupation: userProfile.occupation,
+        origin: userProfile.origin,
+        hobbies: userProfile.hobbies,
+        weekends: userProfile.weekends,
+        locationPreference: userProfile.locationPreference,
+        careerLikes: userProfile.careerLikes,
+        careerGoals: userProfile.careerGoals,
+        partnerPreferences: userProfile.partnerPreferences,
+        relationshipCategory: userProfile.relationshipCategory,
+        loveLanguage: userProfile.loveLanguage,
+        funFacts: userProfile.funFacts,
+        threeWordDescription: userProfile.threeWordDescription,
+        funActivity: userProfile.funActivity,
+        family: userProfile.family,
+        familyImportance: userProfile.familyImportance,
+        traveled: userProfile.traveled,
+        dreamDestination: userProfile.dreamDestination,
+        favoriteFood: userProfile.favoriteFood,
+        coffeeOrTea: userProfile.coffeeOrTea,
+        favoriteMovie: userProfile.favoriteMovie,
+        favoriteShow: userProfile.favoriteShow,
+        entertainmentPreference: userProfile.entertainmentPreference,
+        philosophies: userProfile.philosophies,
+        stress: userProfile.stress,
       },
     ]);
   }
+}
+
+export async function uploadPicture(photo: Blob) {
+  const auth = getAuth();
+
+  await auth.updateUser({
+    photo: photo,
+  });
+
+  await auth.refresh();
 }
