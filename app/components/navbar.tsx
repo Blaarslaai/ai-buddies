@@ -21,7 +21,7 @@ export default async function Navbar({ user, subscription }: props) {
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
-          {user && subscription && subscription.status !== "active" && (
+          {user && subscription && subscription.status === "active" && (
             <Link href="model">
               <div
                 tabIndex={0}

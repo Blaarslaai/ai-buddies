@@ -224,7 +224,7 @@ export default function ChatSpace({ user }: props) {
         </div>
 
         <div className="flex-1 ml-10">
-          <div className="h-full mb-[-100]">
+          <div className="h-[50vh]">
             {userModels.map((model: any, index: number) => (
               <div key={index} className="flex mt-5">
                 <div className="flex-1">
@@ -260,7 +260,7 @@ export default function ChatSpace({ user }: props) {
             ))}
           </div>
 
-          <div className="flex justify-center items-center mb-10 text-slate-400">
+          <div className="flex justify-center items-center text-slate-400">
             <ul className="menu bg-base-200 lg:menu-horizontal rounded-box">
               <li>
                 <button
