@@ -6,14 +6,8 @@ const nextConfig: NextConfig = {
 
 module.exports = {
   images: {
+    domains: ["iqppghcmtnenpcmsespb.supabase.co"],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.reflowhq.com",
-        port: "",
-        pathname: "/media/**",
-        search: "",
-      },
       {
         protocol: "https",
         hostname: "img.daisyui.com",
@@ -23,16 +17,9 @@ module.exports = {
       },
       {
         protocol: "https",
-        hostname: "api.reflowhq.com",
+        hostname: "iqppghcmtnenpcmsespb.supabase.co",
         port: "",
-        pathname: "/img/gravatar/**",
-        search: "",
-      },
-      {
-        protocol: "https",
-        hostname: "test-api.reflowhq.com",
-        port: "",
-        pathname: "/img/gravatar/**",
+        pathname: "/storage/v1/object/sign/profile-pictures/**",
         search: "",
       },
     ],

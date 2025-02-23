@@ -4,31 +4,28 @@
 import { useEffect, useState } from "react";
 import Loader from "./loader";
 import {
-  getUserData,
+  getPicture,
   getUserProfile,
   updateUserProfile,
   uploadPicture,
 } from "../utils/serverFunction";
 import Popup from "./popup";
 import Image from "next/image";
+import { useAppContext } from "../context/AppContext";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { convertToPng } from "../utils/utilities";
 
-type props = {
-  user: any;
-  isComponentLoading: boolean;
-};
+export default function ProfileForm() {
+  const { state } = useAppContext();
 
-export default function ProfileForm({ user, isComponentLoading }: props) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [userDetails, setUserDetails] = useState<any>([
-    {
-      id: 0,
-      name: "",
-    },
-  ]);
+
+  const [userPhoto, setUserPhoto] = useState("");
 
   const [userProfile, setUserProfile] = useState<any>({
-    user_id: 0,
+    user_id: state.supabaseUser && state.supabaseUser[0].id,
     birthday: "",
     gender: "",
     occupation: "",
@@ -58,147 +55,113 @@ export default function ProfileForm({ user, isComponentLoading }: props) {
   });
 
   useEffect(() => {
-    async function getUserDetails() {
-      setIsLoading(true);
-
-      const userDetails = await getUserData(user.email);
-      setUserDetails(userDetails);
-
-      setIsLoading(false);
-    }
-
-    getUserDetails();
-  }, [user]);
-
-  useEffect(() => {
     async function getUserProfileDetails() {
       setIsLoading(true);
 
-      const userProfileDetails = await getUserProfile(userDetails[0].id);
+      const userProfileDetails = await getUserProfile(state.supabaseUser[0].id);
 
-      setUserProfile({
-        user_id: userDetails[0].id,
-        birthday: (userProfileDetails && userProfileDetails[0].birthday) || "",
-        gender: (userProfileDetails && userProfileDetails[0].gender) || "",
-        occupation:
-          (userProfileDetails && userProfileDetails[0].occupation) || "",
-        origin: (userProfileDetails && userProfileDetails[0].origin) || "",
-        hobbies: (userProfileDetails && userProfileDetails[0].hobbies) || "",
-        weekends: (userProfileDetails && userProfileDetails[0].weekends) || "",
-        locationPreference:
-          (userProfileDetails && userProfileDetails[0].locationPreference) ||
-          "",
-        careerLikes:
-          (userProfileDetails && userProfileDetails[0].careerLikes) || "",
-        careerGoals:
-          (userProfileDetails && userProfileDetails[0].careerGoals) || "",
-        partnerPreferences:
-          (userProfileDetails && userProfileDetails[0].partnerPreferences) ||
-          "",
-        relationshipCategory:
-          (userProfileDetails && userProfileDetails[0].relationshipCategory) ||
-          "",
-        loveLanguage:
-          (userProfileDetails && userProfileDetails[0].loveLanguage) || "",
-        funFacts: (userProfileDetails && userProfileDetails[0].funFacts) || "",
-        threeWordDescription:
-          (userProfileDetails && userProfileDetails[0].threeWordDescription) ||
-          "",
-        funActivity:
-          (userProfileDetails && userProfileDetails[0].funActivity) || "",
-        family: (userProfileDetails && userProfileDetails[0].family) || "",
-        familyImportance:
-          (userProfileDetails && userProfileDetails[0].familyImportance) || "",
-        traveled: (userProfileDetails && userProfileDetails[0].traveled) || "",
-        dreamDestination:
-          (userProfileDetails && userProfileDetails[0].dreamDestination) || "",
-        favoriteFood:
-          (userProfileDetails && userProfileDetails[0].favoriteFood) || "",
-        coffeeOrTea:
-          (userProfileDetails && userProfileDetails[0].coffeeOrTea) || "",
-        favoriteMovie:
-          (userProfileDetails && userProfileDetails[0].favoriteMovie) || "",
-        favoriteShow:
-          (userProfileDetails && userProfileDetails[0].favoriteShow) || "",
-        entertainmentPreference:
-          (userProfileDetails &&
-            userProfileDetails[0].entertainmentPreference) ||
-          "",
-        philosophies:
-          (userProfileDetails && userProfileDetails[0].philosophies) || "",
-        stress: (userProfileDetails && userProfileDetails[0].stress) || "",
-      });
+      if (userProfileDetails) {
+        setUserProfile({
+          user_id: state.supabaseUser[0].id,
+          birthday:
+            (userProfileDetails && userProfileDetails[0].birthday) || "",
+          gender: (userProfileDetails && userProfileDetails[0].gender) || "",
+          occupation:
+            (userProfileDetails && userProfileDetails[0].occupation) || "",
+          origin: (userProfileDetails && userProfileDetails[0].origin) || "",
+          hobbies: (userProfileDetails && userProfileDetails[0].hobbies) || "",
+          weekends:
+            (userProfileDetails && userProfileDetails[0].weekends) || "",
+          locationPreference:
+            (userProfileDetails && userProfileDetails[0].locationPreference) ||
+            "",
+          careerLikes:
+            (userProfileDetails && userProfileDetails[0].careerLikes) || "",
+          careerGoals:
+            (userProfileDetails && userProfileDetails[0].careerGoals) || "",
+          partnerPreferences:
+            (userProfileDetails && userProfileDetails[0].partnerPreferences) ||
+            "",
+          relationshipCategory:
+            (userProfileDetails &&
+              userProfileDetails[0].relationshipCategory) ||
+            "",
+          loveLanguage:
+            (userProfileDetails && userProfileDetails[0].loveLanguage) || "",
+          funFacts:
+            (userProfileDetails && userProfileDetails[0].funFacts) || "",
+          threeWordDescription:
+            (userProfileDetails &&
+              userProfileDetails[0].threeWordDescription) ||
+            "",
+          funActivity:
+            (userProfileDetails && userProfileDetails[0].funActivity) || "",
+          family: (userProfileDetails && userProfileDetails[0].family) || "",
+          familyImportance:
+            (userProfileDetails && userProfileDetails[0].familyImportance) ||
+            "",
+          traveled:
+            (userProfileDetails && userProfileDetails[0].traveled) || "",
+          dreamDestination:
+            (userProfileDetails && userProfileDetails[0].dreamDestination) ||
+            "",
+          favoriteFood:
+            (userProfileDetails && userProfileDetails[0].favoriteFood) || "",
+          coffeeOrTea:
+            (userProfileDetails && userProfileDetails[0].coffeeOrTea) || "",
+          favoriteMovie:
+            (userProfileDetails && userProfileDetails[0].favoriteMovie) || "",
+          favoriteShow:
+            (userProfileDetails && userProfileDetails[0].favoriteShow) || "",
+          entertainmentPreference:
+            (userProfileDetails &&
+              userProfileDetails[0].entertainmentPreference) ||
+            "",
+          philosophies:
+            (userProfileDetails && userProfileDetails[0].philosophies) || "",
+          stress: (userProfileDetails && userProfileDetails[0].stress) || "",
+        });
+      }
 
       setIsLoading(false);
     }
 
-    if (userDetails[0].id != 0) {
+    if (state.supabaseUser) {
       getUserProfileDetails();
     }
-  }, [user, userDetails]);
-
-  useEffect(() => {
-    console.log(userDetails);
-    console.log(userProfile);
-  }, [userDetails, userProfile]);
+  }, [state.supabaseUser]);
 
   const handleFileChange = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    try {
-      setIsLoading(true);
+    const pngFile = await convertToPng(file);
+    await uploadPicture(state.supabaseUser[0].id, pngFile);
 
-      // 1. Read the file as a Data URL
-      const dataUrl: any = await readFileAsDataURL(file);
+    const pictureUrl = await getPicture(state.supabaseUser[0].id);
 
-      // 2. Load the data URL into an Image
-      const img: any = await loadImage(dataUrl);
-
-      // 3. Create a canvas and draw the image
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx: any = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-
-      // 4. Convert the canvas to a PNG Blob
-      const pngBlob: any = await new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error("Canvas conversion failed."));
-        }, "image/png");
-      });
-
-      await uploadPicture(pngBlob).finally(() => {
-        setIsLoading(false);
-      });
-    } catch (error) {
-      console.error(error);
+    if (pictureUrl.data) {
+      setUserPhoto(pictureUrl.data?.signedUrl);
     }
   };
 
-  // Helper function: read file as Data URL
-  function readFileAsDataURL(file: any) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
+  useEffect(() => {
+    async function getProfilePicture() {
+      const pictureUrl = await getPicture(state.supabaseUser[0].id);
+
+      if (pictureUrl.data) {
+        setUserPhoto(pictureUrl.data?.signedUrl);
+      }
+    }
+
+    getProfilePicture();
+  }, [state.supabaseUser]);
+
+  async function updateSupabaseProfile() {
+    await updateUserProfile(userProfile);
   }
 
-  // Helper function: load image from Data URL
-  function loadImage(dataUrl: any) {
-    return new Promise((resolve, reject) => {
-      const img = document.createElement("img");
-      img.onload = () => resolve(img);
-      img.onerror = (error: any) => reject(error);
-      img.src = dataUrl;
-    });
-  }
-
-  if (isComponentLoading || isLoading) {
+  if (isLoading) {
     return <Loader />;
   }
 
@@ -210,7 +173,7 @@ export default function ProfileForm({ user, isComponentLoading }: props) {
           onSubmit={(e) => {
             e.preventDefault();
 
-            updateUserProfile(userProfile);
+            updateSupabaseProfile();
             setShowPopup(true);
           }}
         >
@@ -218,12 +181,17 @@ export default function ProfileForm({ user, isComponentLoading }: props) {
             {/* Image Section */}
             <div className="flex-1 mr-5">
               <div className="flex justify-center">
-                <Image src={user?.photo} alt="" width={300} height={300} />
+                {userPhoto ? (
+                  <Image src={userPhoto} alt="" width={300} height={300} />
+                ) : (
+                  <FontAwesomeIcon icon={faUser} size="10x" />
+                )}
               </div>
               <div className="flex justify-center">
                 <input
                   type="file"
                   className="file-input file-input-bordered w-full max-w-xs mt-5"
+                  accept="image/*"
                   onChange={handleFileChange}
                 />
               </div>
@@ -251,7 +219,7 @@ export default function ProfileForm({ user, isComponentLoading }: props) {
                       disabled
                       type="text"
                       className="input input-bordered w-full max-w-lg"
-                      value={user?.name}
+                      value={state.supabaseUser[0].name}
                       readOnly
                     />
                   </label>
@@ -265,7 +233,7 @@ export default function ProfileForm({ user, isComponentLoading }: props) {
                       type="text"
                       className="input input-bordered w-full max-w-lg"
                       readOnly
-                      value={user?.email}
+                      value={state.supabaseUser[0].email}
                     />
                   </label>
 

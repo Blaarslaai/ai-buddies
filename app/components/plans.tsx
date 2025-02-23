@@ -2,119 +2,99 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
-import Plan from "./plan";
-import getAuth from "../auth";
-import { isSubscribed, modifySubscription } from "@reflowhq/auth-next/client";
+import {
+  getPlans,
+  initializePayment,
+  subscribeToPlan,
+} from "../utils/paystack";
+import { useAppContext } from "../context/AppContext";
 
-type props = {
-  subscription: any;
-};
-
-export default function Plans({ subscription }: props) {
-  const auth = getAuth();
-
+export default function Plans() {
+  const [isMounted, setIsMounted] = useState(false);
   const [plans, setPlans] = useState([]);
-  const [activeTab, setActiveTab] = useState("month");
-  const [isSubbed, setIsSubbed] = useState(false);
+
+  const { state } = useAppContext();
 
   useEffect(() => {
-    async function getPlans() {
-      const plans = await fetch(
-        `https://test-api.reflowhq.com/v2/projects/${auth.projectID}/plans/`
-      ).then((r) => r.json());
+    async function getPlanData() {
+      const planData = await getPlans();
 
-      const orderedPlans = plans.data.sort(
-        (
-          a: { parameters: { index: number } },
-          b: { parameters: { index: number } }
-        ) => a.parameters.index - b.parameters.index
-      );
+      const order = ["Soloist", "Groupie", "Socialite"];
 
-      setPlans(orderedPlans);
+      if (planData && planData.data) {
+        const sortedData = planData?.data.sort(
+          (a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name)
+        );
+        setPlans(sortedData);
+      }
     }
 
-    getPlans();
-  }, [auth.projectID]);
+    getPlanData();
+  }, []);
 
   useEffect(() => {
-    async function checkSubscribed() {
-      const isSubbed = await isSubscribed();
+    setIsMounted(true);
+  }, []);
 
-      setIsSubbed(isSubbed);
-    }
+  async function subscribe(plan: any) {
+    // const result = await initializePayment(plan.amount, );
 
-    checkSubscribed();
-  }, [isSubbed]);
+    // console.log(result);
 
-  async function refreshCookie() {
-    await auth.refresh();
+    console.log(state.user);
+  }
+
+  if (!isMounted) {
+    return null;
   }
 
   return (
-    <>
-      {!isSubbed ? (
-        <>
-          <div className="w-full flex justify-center">
-            <div className="tabs tabs-boxed">
-              <a
-                role="tab"
-                className={`tab ${activeTab === "month" ? "tab-active" : ""}`}
-                onClick={() => setActiveTab("month")}
-              >
-                Monthly
-              </a>
-              <a
-                role="tab"
-                className={`tab ${activeTab === "year" ? "tab-active" : ""}`}
-                onClick={() => setActiveTab("year")}
-              >
-                Yearly
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-row justify-center items-center mt-10">
-            {plans.map((p: any, index: number) => (
-              <div
-                key={index}
-                className="flex flex-row flex-1 bg-slate-200 mx-10 rounded-lg p-5 h-full"
-              >
-                <Plan key={p.id} plan={p} activeTab={activeTab} auth={auth} />
+    <div className="flex flex-row justify-center items-center mt-10">
+      {plans &&
+        plans.map((plan: any, index: number) => (
+          <div
+            key={index}
+            className="flex flex-row flex-1 bg-slate-200 mx-10 rounded-lg p-5 h-full"
+          >
+            <div className="card flex flex-col h-full">
+              <div className="flex flex-col justify-center items-center flex-1">
+                <h1 className="text-5xl">{plan.name}</h1>
+                <p className="text-sm text-center">
+                  <strong>{plan.description}</strong>
+                </p>
+                <ul className="list-disc my-5">
+                  {plan.name === "Soloist" ? (
+                    <>
+                      <li>Support for one AI model</li>
+                      <li>Zero WhatsApp functionality</li>
+                    </>
+                  ) : plan.name === "Groupie" ? (
+                    <>
+                      <li>Support for up to two AI models</li>
+                      <li>Limited WhatsApp functionality</li>
+                    </>
+                  ) : plan.name === "Socialite" ? (
+                    <>
+                      <li>Support for up to three AI models</li>
+                      <li>Full WhatsApp functionality</li>
+                    </>
+                  ) : null}
+                </ul>
+                <h2 className="font-bold">Price: R{plan.amount / 100}.00</h2>
               </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className="flex justify-center items-center">
-          <div className="card bg-slate-200 w-96 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">{subscription.plan.name}</h2>
-              <p>{subscription.plan.description}</p>
-              <br />
-              <p>
-                <strong>{subscription.price.price_formatted}</strong>
-                {" - "}
-                {subscription.price.billing_period === "month"
-                  ? "Monthly"
-                  : "Yearly"}
-              </p>
-              <div className="card-actions justify-end">
+              <div className="flex justify-center my-5">
                 <button
-                  className="btn btn-primary mt-5"
+                  className="btn btn-accent w-1/2"
                   onClick={() => {
-                    modifySubscription({
-                      onSuccess: () => {
-                        refreshCookie();
-                      },
-                    });
+                    subscribe(plan);
                   }}
                 >
-                  Modify Subscription
+                  Subscribe
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
+        ))}
+    </div>
   );
 }

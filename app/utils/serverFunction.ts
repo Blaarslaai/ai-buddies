@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import getAuth from "../auth";
 import { supabase } from "./supabase";
 
 export async function createAIModel(model: {
@@ -76,6 +75,17 @@ export async function fetchAIChat(message: string): Promise<string> {
     .join(""); // Join content together
 
   return combinedContent;
+}
+
+export async function createUserData(userData: any) {
+  await supabase.from("users").insert([
+    {
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      customerCode: userData.customerCode,
+    },
+  ]);
 }
 
 export async function getUserData(email: string) {
@@ -156,73 +166,89 @@ export async function updateUserProfile(userProfile: any) {
         origin: userProfile.origin,
         hobbies: userProfile.hobbies,
         weekends: userProfile.weekends,
-        locationPreference: userProfile.locationPreference,
-        careerLikes: userProfile.careerLikes,
-        careerGoals: userProfile.careerGoals,
-        partnerPreferences: userProfile.partnerPreferences,
-        relationshipCategory: userProfile.relationshipCategory,
-        loveLanguage: userProfile.loveLanguage,
-        funFacts: userProfile.funFacts,
-        threeWordDescription: userProfile.threeWordDescription,
-        funActivity: userProfile.funActivity,
+        locationpreference: userProfile.locationPreference,
+        careerlikes: userProfile.careerLikes,
+        careergoals: userProfile.careerGoals,
+        partnerpreferences: userProfile.partnerPreferences,
+        relationshipcategory: userProfile.relationshipCategory,
+        lovelanguage: userProfile.loveLanguage,
+        funfacts: userProfile.funFacts,
+        threeworddescription: userProfile.threeWordDescription,
+        funactivity: userProfile.funActivity,
         family: userProfile.family,
-        familyImportance: userProfile.familyImportance,
+        familyimportance: userProfile.familyImportance,
         traveled: userProfile.traveled,
-        dreamDestination: userProfile.dreamDestination,
-        favoriteFood: userProfile.favoriteFood,
-        coffeeOrTea: userProfile.coffeeOrTea,
-        favoriteMovie: userProfile.favoriteMovie,
-        favoriteShow: userProfile.favoriteShow,
-        entertainmentPreference: userProfile.entertainmentPreference,
+        dreamdestination: userProfile.dreamDestination,
+        favoritefood: userProfile.favoriteFood,
+        coffeeortea: userProfile.coffeeOrTea,
+        favoritemovie: userProfile.favoriteMovie,
+        favoriteshow: userProfile.favoriteShow,
+        entertainmentpreference: userProfile.entertainmentPreference,
         philosophies: userProfile.philosophies,
         stress: userProfile.stress,
       })
       .eq("user_id", userProfile.user_id);
 
     if (userProfileError) {
-      console.error("Error updating user:", userProfileError);
+      return userProfileError;
     }
   } else {
-    await supabase.from("userProfile").insert([
-      {
-        user_id: userProfile.user_id,
-        birthday: userProfile.birthday,
-        gender: userProfile.gender,
-        occupation: userProfile.occupation,
-        origin: userProfile.origin,
-        hobbies: userProfile.hobbies,
-        weekends: userProfile.weekends,
-        locationPreference: userProfile.locationPreference,
-        careerLikes: userProfile.careerLikes,
-        careerGoals: userProfile.careerGoals,
-        partnerPreferences: userProfile.partnerPreferences,
-        relationshipCategory: userProfile.relationshipCategory,
-        loveLanguage: userProfile.loveLanguage,
-        funFacts: userProfile.funFacts,
-        threeWordDescription: userProfile.threeWordDescription,
-        funActivity: userProfile.funActivity,
-        family: userProfile.family,
-        familyImportance: userProfile.familyImportance,
-        traveled: userProfile.traveled,
-        dreamDestination: userProfile.dreamDestination,
-        favoriteFood: userProfile.favoriteFood,
-        coffeeOrTea: userProfile.coffeeOrTea,
-        favoriteMovie: userProfile.favoriteMovie,
-        favoriteShow: userProfile.favoriteShow,
-        entertainmentPreference: userProfile.entertainmentPreference,
-        philosophies: userProfile.philosophies,
-        stress: userProfile.stress,
-      },
-    ]);
+    const { error: userProfileError } = await supabase
+      .from("userProfile")
+      .insert([
+        {
+          user_id: userProfile.user_id,
+          birthday: userProfile.birthday,
+          gender: userProfile.gender,
+          occupation: userProfile.occupation,
+          origin: userProfile.origin,
+          hobbies: userProfile.hobbies,
+          weekends: userProfile.weekends,
+          locationpreference: userProfile.locationPreference,
+          careerlikes: userProfile.careerLikes,
+          careergoals: userProfile.careerGoals,
+          partnerpreferences: userProfile.partnerPreferences,
+          relationshipcategory: userProfile.relationshipCategory,
+          lovelanguage: userProfile.loveLanguage,
+          funfacts: userProfile.funFacts,
+          threeworddescription: userProfile.threeWordDescription,
+          funactivity: userProfile.funActivity,
+          family: userProfile.family,
+          familyimportance: userProfile.familyImportance,
+          traveled: userProfile.traveled,
+          dreamdestination: userProfile.dreamDestination,
+          favoritefood: userProfile.favoriteFood,
+          coffeeortea: userProfile.coffeeOrTea,
+          favoritemovie: userProfile.favoriteMovie,
+          favoriteshow: userProfile.favoriteShow,
+          entertainmentpreference: userProfile.entertainmentPreference,
+          philosophies: userProfile.philosophies,
+          stress: userProfile.stress,
+        },
+      ]);
+
+    if (userProfileError) {
+      return userProfileError;
+    }
   }
 }
 
-export async function uploadPicture(photo: Blob) {
-  const auth = getAuth();
+export async function uploadPicture(user_id: string, picture: any) {
+  const { error } = await supabase.storage
+    .from("profile-pictures")
+    .upload(`avatar${user_id}.png`, picture, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: picture.type,
+    });
 
-  await auth.updateUser({
-    photo: photo,
-  });
+  if (error) {
+    return error.message;
+  }
+}
 
-  await auth.refresh();
+export async function getPicture(user_id: string) {
+  return supabase.storage
+    .from("profile-pictures")
+    .createSignedUrl(`avatar${user_id}.png`, 60 * 60);
 }
