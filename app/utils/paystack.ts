@@ -6,7 +6,7 @@ import { createUserData } from "./serverFunction";
 import { v4 as uuidv4 } from "uuid";
 
 const paystackClient = paystack(
-  "sk_test_7eba0ecc348cee46db50da3836ea090751c537be"
+  ""
 );
 
 async function createUser(userData: any) {
